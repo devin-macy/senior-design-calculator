@@ -35,7 +35,8 @@ byte colPins[COLS] = {5, 4, 3, 2};
 
 // End Keypad
 
-// Lexer
+
+// Lexer Class
 class CalcLexer
 {
   public:
@@ -45,8 +46,8 @@ class CalcLexer
     NUMBER,
     LEFT_PAR = '(',
     RIGHT_PAR = ')',
-    PLUS = '+',
-    MINUS = '-',
+    ADD = '+',
+    SUB = '-',
     MUL = '*',
     DIV = '/',
   };
@@ -61,7 +62,7 @@ class CalcLexer
       return curNumber;
     }
  
-  TokenType getCur() const
+  TokenType getCurTok() const
     {
         return curToken;
     }
@@ -96,9 +97,9 @@ class CalcLexer
       }
       char temp = curExp.charAt(0);
     
-      Serial.print('\n');
-      Serial.print("Current Char: ");
-      Serial.print(temp);
+ //     Serial.print('\n');
+ //     Serial.print("Current Char: ");
+ //     Serial.print(temp);
     
       curExp.remove(0,1);
       
@@ -108,8 +109,8 @@ class CalcLexer
         case ')': return curToken = TokenType::RIGHT_PAR;
         case '/': return curToken = TokenType::DIV;
         case '*': return curToken = TokenType::MUL;
-        case '-': return curToken = TokenType::MINUS;
-        case '+': return curToken = TokenType::PLUS;
+        case '-': return curToken = TokenType::SUB;
+        case '+': return curToken = TokenType::ADD;
       }
       String stringNumber = "";
       if (isDigit(temp))
@@ -133,38 +134,183 @@ class CalcLexer
     }
 };
 // End Lexer
+// Start Parser
+class CalcParser
+{
+  public:
+   CalcParser(CalcLexer* curlex)
+     {
+       lex = curlex;
+     }
+    // Usually returns the a number for the next token
+    // Handles edge cases like Negative Numbers and Parenthasis
+    // Top of the mountain, Gets to go first
+    float parseExpression()
+    {
+      lex->findNext();
+      switch(lex->getCurTok())
+      {
+        // Simply returns the number, This is our end case. all expression will end here eventially
+        case CalcLexer::NUMBER:
+        {
+          float curNum = lex->getNumber();
+          lex->findNext();
+//          Serial.print('\n');
+//          Serial.print("Our raw::number is: ");
+//          Serial.print(curNum);
+//          Serial.print('\n');
+          return curNum;
+          
+        }
+        case CalcLexer::SUB:// Edge Case for handling Negative Numbers
+          return -1 * parseExpression();
+        // Edge Case for handling Parenthasis, If you find a left par, Solve the Expression between it and the right par
+        case CalcLexer::LEFT_PAR:
+        {
+          float curNum = parseAddSub();
+          if (lex->getCurTok() != CalcLexer::TokenType::RIGHT_PAR)
+          {
+            Serial.print('\n');
+            Serial.print("Error:: No right par");
+          }
+          lex->findNext();
+          return curNum;
+        }
+        default:
+        {
+          Serial.print('\n');
+          Serial.print(lex->getCurTok());
+        Serial.print("Error:: Invalid Expression");
+        }
+      }
+    }
+    // middle of the mountain, Assuming all conditions are met, this div/mul get to go second, before findExpression, which handles edge cases
+    // This function parses for MUL/DIV Tokens
+    float parseDivMul()
+    {
+      // Number at the left side of our equation
+      float curNum = parseExpression();
+      // Finds the right side of our equation, and uses the appropriate arithamtic, edge case for divided by 0
+      while (true)
+      {
+        switch(lex->getCurTok())
+        {
+          case CalcLexer::TokenType::MUL:// Find Right side, and Multiply
+          {
+            curNum *= parseExpression();
+            break;
+          }
+          case CalcLexer::TokenType::DIV:
+          {
+            // Find Right side, and Divide
+            float temp = parseExpression();
+            if(temp != 0.0)
+            {
+              curNum /= temp;
+              break;
+            }
+            else
+            {
+              Serial.print('\n');
+              Serial.print("Error:: Cannot Divide by 0");
+              break;
+            }
+          }
+          default: // No multiply or Div tokens found.. So just return back to parseAddSub() to wince you where called
+            return curNum;
+        }
+      } 
+            
+    }
+    // bottom of the mountain, this is where we start parsing every Expression and sub expression
+    // Assuming there are no mul, div, or edge cases This goes 3rd
+    // This function parses for ADD/SUB Tokens
+    float parseAddSub()
+    {
+      // Number at the left side of our equation, Solve using Mul/Div to keep PEMDAS intact
+      float curNum = parseDivMul();
+//      Serial.print('\n');
+//      Serial.print("Our left::addsub is: ");
+//      Serial.print(curNum);
+//      Serial.print('\n');
+ 
+      // Finds the right side of our equation, and uses the appropriate arithamtic, edge case for divided by 0
+      while (true)
+      {
+        switch(lex->getCurTok())
+        {
+          case CalcLexer::TokenType::ADD:
+          {
+            curNum += parseDivMul();
+            break;
+          }
+          case CalcLexer::TokenType::SUB:
+          {
+            curNum -= parseDivMul();
+            break;
+          }
+          default:// No ADD/SUB tokens founds, Probly means we are at the end of a expression or end of a parenthasis
+          {
+//            Serial.print('\n');
+//            Serial.print("Our final::addsub is: ");
+//            Serial.print(curNum);
+//            Serial.print('\n');
+            return curNum;
+          }
+        }
+      }
+    }
+    float calc()
+    {
+      return parseAddSub();
+    }
+  
+  private:
+    CalcLexer* lex = NULL;
+};
+// End Parser
 // Parser $ && Lexer Stuff that dom is working on 
 // Feel free to ask questions
 
 
 
-//Tinkercad uses 27, Nano uses 0x27
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+LiquidCrystal_I2C lcd(34, 16, 2);
 void setup()
 {
-    // Set the LCD
+  // Turning on Serial
+  Serial.begin(9600);
+  // ## Testing LCD
+  // Set the LCD
   lcd.init();
   lcd.backlight();
   lcd.clear();
+  // Print At 0,0
   lcd.setCursor(0,0);
   lcd.print("Hello World");
-  
-  Serial.begin(9600);
-  CalcLexer lex;
-  String startingexp = "2+3*4";
-  lex.setExpression(startingexp);
+  // ##
   Serial.print('\n');
   Serial.print("booting.... Welcome to our Calculator");
+  
+  
+  // ## Testing Lexer/Parser
+  String startingexp = "(3*4)/-0.5";
+  CalcLexer* lex = new CalcLexer();
+  lex->setExpression(startingexp);
+  CalcParser* parse = new CalcParser(lex);
+  
   Serial.print('\n');
   Serial.print("Our expression is: ");
   Serial.print(startingexp);
-  CalcLexer::TokenType temp;
-  while (lex.findNext() != 0)
-  {
-    lex.printData();
-  }
+  Serial.print('\n');
+  Serial.print("Our result is: ");
+  Serial.print(parse->calc());
+//  CalcLexer::TokenType temp;
+//  while (lex.findNext() != 0)
+//  {
+//    lex.printData();
+//  }
 }
-
 void loop()
 {
 }
