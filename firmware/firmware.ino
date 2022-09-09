@@ -1,18 +1,41 @@
-// EE Capstone CPR2
-// Dominic Benintendi
-//
-//
-//
-// 9/8/22
-//=================================
-// firmware.ino
-// Acts as the main function for the whole project
-
-#include "src/calculator/calculator.h"
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
+// 9/7/22
+// EE Capstone CPR2 Tinker Cad Tests
+// Main
+
+// Keypad
+const byte ROWS = 4; 
+const byte COLS = 4; 
+
+char defaultKeys[ROWS][COLS] = {
+  {'1', '2', '3', '+'},
+  {'4', '5', '6', '-'},
+  {'7', '8', '9', '*'},
+  {'C', '0', '=', '/'}
+};
+
+char keys1[ROWS][COLS] = {
+  {'1', '2', '3', '('},
+  {'4', '5', '6', ')'},
+  {'7', '8', '9', '.'},
+  {'C', '0', '=', '~'}
+};
+
+char keys2[ROWS][COLS] = {
+  {'1', '2', '3', 'X'},
+  {'4', '5', '6', 'X'},
+  {'7', '8', '9', 'X'},
+  {'C', '0', '=', 'X'}
+};
+
+byte rowPins[ROWS] = {9, 8, 7, 6}; 
+byte colPins[COLS] = {5, 4, 3, 2};
 
 
+// End Keypad
+
+// Lexer
 class CalcLexer
 {
   public:
@@ -108,29 +131,25 @@ class CalcLexer
       }
     
     }
-  
-
-  
 };
-
+// End Lexer
 // Parser $ && Lexer Stuff that dom is working on 
 // Feel free to ask questions
 
 
 
-
-LiquidCrystal_I2C lcd(34, 16, 2);
+//Tinkercad uses 27, Nano uses 0x27
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 void setup()
 {
-  Serial.begin(9600);
     // Set the LCD
   lcd.init();
   lcd.backlight();
   lcd.clear();
-    // Print At 0,0
-    lcd.setCursor(0,0);
+  lcd.setCursor(0,0);
   lcd.print("Hello World");
   
+  Serial.begin(9600);
   CalcLexer lex;
   String startingexp = "2+3*4";
   lex.setExpression(startingexp);
@@ -145,6 +164,7 @@ void setup()
     lex.printData();
   }
 }
+
 void loop()
 {
 }
