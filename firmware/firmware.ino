@@ -5,9 +5,9 @@
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
-#include <./src/calculator.h>
-#include <./src/key.h>
-#include <./src/util.h>
+#include "./src/calculator.h"
+#include "./src/key.h"
+#include "./src/util.h"
 
 // Lexer Class
 class CalcLexer
@@ -82,8 +82,8 @@ class CalcLexer
         case ')': return curToken = TokenType::RIGHT_PAR;
         case '/': return curToken = TokenType::DIV;
         case '*': return curToken = TokenType::MUL;
-        case '-': return curToken = TokenType::MINUS;
-        case '+': return curToken = TokenType::PLUS;
+        case '-': return curToken = TokenType::SUB;
+        case '+': return curToken = TokenType::ADD;
       }
       String stringNumber = "";
       if (isDigit(temp))
@@ -153,7 +153,7 @@ class CalcParser
         {
           Serial.print('\n');
           Serial.print(lex->getCurTok());
-        Serial.print("Error:: Invalid Expression");
+          Serial.print("Error:: Invalid Expression");
         }
       }
     }
