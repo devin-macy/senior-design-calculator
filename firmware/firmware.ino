@@ -1,39 +1,14 @@
+// OHIO UNIVERSITY
+// Fall 2022-2023
+// 4-Function Calculator
+// Devin Macy, Dominic Benintendi, Husain Bani Orada, Collin Russel
+
 #include <Keypad.h>
 #include <LiquidCrystal_I2C.h>
-// 9/7/22
-// EE Capstone CPR2 Tinker Cad Tests
-// Main
-
-// Keypad
-const byte ROWS = 4; 
-const byte COLS = 4; 
-
-char defaultKeys[ROWS][COLS] = {
-  {'1', '2', '3', '+'},
-  {'4', '5', '6', '-'},
-  {'7', '8', '9', '*'},
-  {'C', '0', '=', '/'}
-};
-
-char keys1[ROWS][COLS] = {
-  {'1', '2', '3', '('},
-  {'4', '5', '6', ')'},
-  {'7', '8', '9', '.'},
-  {'C', '0', '=', '~'}
-};
-
-char keys2[ROWS][COLS] = {
-  {'1', '2', '3', 'X'},
-  {'4', '5', '6', 'X'},
-  {'7', '8', '9', 'X'},
-  {'C', '0', '=', 'X'}
-};
-
-byte rowPins[ROWS] = {9, 8, 7, 6}; 
-byte colPins[COLS] = {5, 4, 3, 2};
-
-
-// End Keypad
+#include <Wire.h>
+#include <./src/calculator.h>
+#include <./src/key.h>
+#include <./src/util.h>
 
 // Lexer
 class CalcLexer
@@ -135,8 +110,6 @@ class CalcLexer
 // End Lexer
 // Parser $ && Lexer Stuff that dom is working on 
 // Feel free to ask questions
-
-
 
 //Tinkercad uses 27, Nano uses 0x27
 LiquidCrystal_I2C lcd(0x27, 16, 2);
