@@ -1,6 +1,9 @@
 #ifndef KEYPAD
 #define KEYPAD
 
+#include <Arduino.h>
+#include <Keypad.h>
+
 // Keypad
 const byte ROWS = 4; 
 const byte COLS = 4; 
@@ -12,6 +15,7 @@ char defaultKeys[ROWS][COLS] = {
   {'C', '0', '=', '/'}
 };
 
+const byte KEY1 = 12;
 char keys1[ROWS][COLS] = {
   {'1', '2', '3', '('},
   {'4', '5', '6', ')'},
@@ -19,6 +23,7 @@ char keys1[ROWS][COLS] = {
   {'C', '0', '=', '-'}
 };
 
+const byte KEY2 = 13;
 char keys2[ROWS][COLS] = {
   {'1', '2', '3', 'X'},
   {'4', '5', '6', 'X'},
@@ -29,8 +34,8 @@ char keys2[ROWS][COLS] = {
 byte rowPins[ROWS] = {9, 8, 7, 6}; 
 byte colPins[COLS] = {5, 4, 3, 2};
 
+Keypad defaultKeypad = Keypad(makeKeymap(defaultKeys), rowPins, colPins, ROWS, COLS);
+Keypad keypad1 = Keypad(makeKeymap(keys1), rowPins, colPins, ROWS, COLS);
+Keypad keypad2 = Keypad(makeKeymap(keys2), rowPins, colPins, ROWS, COLS);
 
-// End Keypad
-
-
-#endif
+#endif //End

@@ -242,15 +242,15 @@ class CalcParser
     CalcLexer* lex = NULL;
 };
 // End Parser
-// Parser $ && Lexer Stuff that dom is working on 
-// Feel free to ask questions
 
-//Tinkercad uses 27, Nano uses 0x27
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 void setup()
 {
   // Turning on Serial
   Serial.begin(9600);
+  Wire.setClock(1000000);
   // ## Testing LCD
   // Set the LCD
   lcd.init();
@@ -280,7 +280,41 @@ void setup()
 //  {
 //    lex.printData();
 //  }
+
+
+
+
+
+  // Setting push button inputs
+  pinMode(KEY1, INPUT);
+  pinMode(KEY2, INPUT);
 }
 void loop()
 {
+  bool key1 = digitalRead(KEY1);
+  bool key2 = digitalRead(KEY2);
+  
+  //Serial.print("\nKey1: ");
+  //Serial.print(key1);
+  //Serial.print("\nKey2: ");
+  //Serial.print(key2);
+  //Serial.print("\n\n");
+  
+  char input;
+  if(key1 && key2){
+	  input = defaultKeypad.getKey();
+  } else if(key1){
+    input = keypad1.getKey();
+  } else if(key2){
+    input = keypad2.getKey();
+  } else{
+    input = defaultKeypad.getKey();
+  }
+  
+  if(input){
+    Serial.print(input);
+  	Serial.print("\n\n");
+  }
+  
+  delay(100);
 }
