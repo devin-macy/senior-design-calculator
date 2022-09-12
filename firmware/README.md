@@ -9,7 +9,6 @@ firmware.ino holds the main for our code, and the rest will be sectioned off int
 		* calculator.cpp
 	* keypad module
 		* keypad.h
-		* keypad.cpp
 	* LCD module
 		* lcd.h
 		* lcd.cpp

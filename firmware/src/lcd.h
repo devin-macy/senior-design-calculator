@@ -1,8 +1,12 @@
 #ifndef UTILITY
 #define UTILITY
 #include <LiquidCrystal_I2C.h>
+#include "calculator.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+String expression = "";
+byte expLength = 0;
 
 void startLCD(){
   // Setup LCD
