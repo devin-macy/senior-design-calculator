@@ -8,6 +8,7 @@
 const byte ROWS = 4; 
 const byte COLS = 4; 
 
+const String DEF_KEYS = "+-*/";
 char defaultKeys[ROWS][COLS] = {
   {'1', '2', '3', '+'},
   {'4', '5', '6', '-'},
@@ -16,6 +17,7 @@ char defaultKeys[ROWS][COLS] = {
 };
 
 const byte KEY1 = 12;
+const String KEYS_1 = "().-";
 char keys1[ROWS][COLS] = {
   {'1', '2', '3', '('},
   {'4', '5', '6', ')'},
@@ -24,6 +26,7 @@ char keys1[ROWS][COLS] = {
 };
 
 const byte KEY2 = 13;
+const String KEYS_2 = "^XXX";
 char keys2[ROWS][COLS] = {
   {'1', '2', '3', 'X'},
   {'4', '5', '6', 'X'},

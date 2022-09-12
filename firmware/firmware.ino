@@ -244,65 +244,51 @@ class CalcParser
 // End Parser
 
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+String expression = "";
+byte expLength = 0;
+
+bool diff_key1 = 0;
+bool diff_key2 = 0;
 
 void setup()
 {
-  // Turning on Serial
+  // Turning on Serial and I2C
   Serial.begin(9600);
   Wire.setClock(1000000);
-  // ## Testing LCD
-  // Set the LCD
-  lcd.init();
-  lcd.backlight();
-  lcd.clear();
-  lcd.setCursor(0,0);
-  lcd.print("Hello World");
-  // ##
-  Serial.print('\n');
-  Serial.print("booting.... Welcome to our Calculator");
   
-  
-  // ## Testing Lexer/Parser
-  String startingexp = "(3*4)/-0.5";
-  CalcLexer* lex = new CalcLexer();
-  lex->setExpression(startingexp);
-  CalcParser* parse = new CalcParser(lex);
-  
-  Serial.print('\n');
-  Serial.print("Our expression is: ");
-  Serial.print(startingexp);
-  Serial.print('\n');
-  Serial.print("Our result is: ");
-  Serial.print(parse->calc());
-//  CalcLexer::TokenType temp;
-//  while (lex.findNext() != 0)
-//  {
-//    lex.printData();
-//  }
-
-
-
-
-
   // Setting push button inputs
   pinMode(KEY1, INPUT);
   pinMode(KEY2, INPUT);
+  
+  // LCD startup
+  bool trash = 0;
+  startLCD();
+  print_keys(trash,trash);
+  
 }
+
+
 void loop()
 {
+  // Keypad select
   bool key1 = digitalRead(KEY1);
   bool key2 = digitalRead(KEY2);
   
-  //Serial.print("\nKey1: ");
-  //Serial.print(key1);
-  //Serial.print("\nKey2: ");
-  //Serial.print(key2);
-  //Serial.print("\n\n");
+  // Keypad display handling
+  if(key1 != diff_key1){
+  	print_keys(key1,key2);
+    diff_key1 = key1;
+  }
   
+  if(key2 != diff_key2){
+   	print_keys(key1,key2);
+    diff_key2 = key2;
+  }
+  
+  // Get input from keypad
   char input;
   if(key1 && key2){
-	  input = defaultKeypad.getKey();
+	input = defaultKeypad.getKey();
   } else if(key1){
     input = keypad1.getKey();
   } else if(key2){
@@ -311,10 +297,9 @@ void loop()
     input = defaultKeypad.getKey();
   }
   
+  // Input handling
   if(input){
-    Serial.print(input);
-  	Serial.print("\n\n");
+    handle_input(input,key1,key2);
   }
-  
-  delay(100);
+
 }
