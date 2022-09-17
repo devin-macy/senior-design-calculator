@@ -7,7 +7,7 @@ Tasks I completed with Colin:
 - Preliminiary Design 
     - Power subsystem
   
-  Revised Objects, , for the first Milestone 1
+Revised Objects, , for the first Milestone 1
 Tasks I completed with Dominic:
     - Recreated the flow chart diagram for Milestone 2
     - 
