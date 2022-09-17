@@ -9,5 +9,6 @@ Tasks I completed with Colin:
   
   Revised Objects, , for the first Milestone 1
 Tasks I completed with Dominic:
-    Recreated the flow chart diagram for Milestone 2
+    - Recreated the flow chart diagram for Milestone 2
+    - 
 
