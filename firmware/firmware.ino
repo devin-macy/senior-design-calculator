@@ -10,7 +10,7 @@ byte history_len = 0;
 byte curr_exp = 0;
 byte iterator = 0;
 // Current Expression information
-LiquidCrystal_I2C lcd(34, 16, 2);
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 // Custom Chars
 byte up_arrow[] = {
  B00100,
@@ -120,23 +120,23 @@ class CalcLexer
     Token curToken;
   public:
   
-  float getNumber() const
+  float getNumber()
     {
       return curNumber;
     }
  
-  Token getCurTok() const
+  Token getCurTok()
     {
      	 return curToken;
     }
-  void setExpression(const String &exp)
+  void setExp(String exp)
     {
       curExp = exp;
     }
   void printData()
   {
     Serial.print('\n');
-	Serial.print("Current Expression: ");
+	  Serial.print("Current Expression: ");
     Serial.print(curExp);
     Serial.print('\n');
     Serial.print("What type of token is it?: ");
@@ -155,7 +155,7 @@ class CalcLexer
     curNumber = 0;
     if (curExp.length() == 0)
     {
-      Serial.print("Reached END TOKEN");
+      // Serial.print("Reached END TOKEN");
       curToken = Token::END;
       return curToken;
     }
@@ -163,22 +163,61 @@ class CalcLexer
     curExp.remove(0,1);
     switch (temp)
     {
-      case '(': return curToken = Token::LEFT_PAR;
-      case ')': return curToken = Token::RIGHT_PAR;
-      case '/': return curToken = Token::DIV;
-      case '*': return curToken = Token::MUL;
-      case '-': return curToken = Token::SUB;
-      case '+': return curToken = Token::ADD;
-      case '^': return curToken = Token::POW;
+      case '(': 
+      {
+        curToken = Token::LEFT_PAR;
+        return curToken
+      }
+      case ')':
+      {
+        curToken = Token::RIGHT_PAR;
+        return curToken
+      }
+      case '/':
+      {
+        curToken = Token::DIV;
+        return curToken
+      }
+      case '*':
+      {
+        curToken = Token::MUL;
+        return curToken
+      }
+      case '-':
+      {
+        curToken = Token::SUB;
+        return curToken
+      }
+      case '+':
+      {
+        curToken = Token::ADD;
+        return curToken
+      }
+      case '^':
+      {
+        curToken = Token::POW;
+        return curToken
+      }
     }
     String stringNumber = "";
     if (isDigit(temp))
     {
       stringNumber += temp;
-      while ((isDigit(curExp.charAt(0)) || curExp.charAt(0) == '.') && !curExp.length() == 0)
+      bool foundDecimal = false;
+      while ((isDigit(curExp.charAt(0)) || curExp.charAt(0) == '.'))
       {
-        stringNumber += curExp.charAt(0);
-        curExp.remove(0,1);
+        if(!foundDecimal)
+        {
+          stringNumber += curExp.charAt(0);
+          curExp.remove(0,1);
+          foundDecimal = true;
+        }
+        else
+        {
+          e = "ERR:DECM SYTX";
+          break;
+        }
+        
       }
       curNumber = stringNumber.toFloat();
       curToken = Token::NUM;
