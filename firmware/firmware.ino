@@ -233,18 +233,24 @@ class CalcParser
           float curNum = parseAddSub(e);
           if (lex->getCurTok() != CalcLexer::Token::RIGHT_PAR)
           {
+            lex->findNext(e);
+            return curNum;
+          }
+          else
+          {
             Serial.print('\n');
             Serial.print("Parser::Error:: No right par");
             e = "ERR:NO R_PAR";
+            return curNum;
           }
-          lex->findNext(e);
-          return curNum;
+          
         }
       	default:
         {
           	e = "ERR:INV EXP";
         }
       }
+      
     }
   	// Middle-top of the moutain, Handels POW(x,y) function
   	float parsePow(String&e)
