@@ -231,7 +231,7 @@ class CalcParser
       	case CalcLexer::LEFT_PAR:// Edge Case for handling Parenthasis, If you find a left par, Solve the Expression between it and the right par
         {
           float curNum = parseAddSub(e);
-          if (lex->getCurTok() != CalcLexer::Token::RIGHT_PAR)
+          if (lex->getCurTok() == CalcLexer::Token::RIGHT_PAR)
           {
             lex->findNext(e);
             return curNum;
