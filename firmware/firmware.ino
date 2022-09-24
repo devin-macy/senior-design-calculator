@@ -166,51 +166,54 @@ class CalcLexer
       case '(': 
       {
         curToken = Token::LEFT_PAR;
-        return curToken
+        return curToken;
       }
       case ')':
       {
         curToken = Token::RIGHT_PAR;
-        return curToken
+        return curToken;
       }
       case '/':
       {
         curToken = Token::DIV;
-        return curToken
+        return curToken;
       }
       case '*':
       {
         curToken = Token::MUL;
-        return curToken
+        return curToken;
       }
       case '-':
       {
         curToken = Token::SUB;
-        return curToken
+        return curToken;
       }
       case '+':
       {
         curToken = Token::ADD;
-        return curToken
+        return curToken;
       }
       case '^':
       {
         curToken = Token::POW;
-        return curToken
+        return curToken;
       }
     }
     String stringNumber = "";
     if (isDigit(temp))
     {
       stringNumber += temp;
-      bool foundDecimal = false;
+      byte foundDecimal = 0;
       while ((isDigit(curExp.charAt(0)) || curExp.charAt(0) == '.'))
       {
-        if(!foundDecimal)
+        if (curExp.charAt(0) == '.')
+        {
+          foundDecimal += 1;
+        }
+        if(foundDecimal <= 1)
         {
           stringNumber += curExp.charAt(0);
           curExp.remove(0,1);
-          foundDecimal = true;
         }
         else
         {
@@ -225,6 +228,7 @@ class CalcLexer
     }
     else
     {
+      if (e == "")
       e = "ERR:SYNTAX";
     }
    }
@@ -242,7 +246,7 @@ class CalcParser
      CalcParser(String exp)
      {
        lex = new CalcLexer();
-       lex->setExpression(exp);
+       lex->setExp(exp);
      }
   	 ~CalcParser()
      {
@@ -601,18 +605,14 @@ class LcdController
         }
         case 'l':{
           //Left arrow - move through expression
-          if((iterator < expLength) && (iterator > 0)){
-           moveCurLeft(); 
-           iterator += 1;
-          }
+          moveCurLeft(); 
           break;
         }
         case 'r':{
           //Right arrow - move through expression
-          if((iterator > 0) && (iterator < expLength)){
-           moveCurRight(); 
-           iterator -= 1;
-          }
+          
+          moveCurRight(); 
+        
           break;
         }
         case 'A':{
@@ -623,12 +623,13 @@ class LcdController
           break;
         }
         case 'I':{
-          //Insert at cursor in expression
+          //Reset Cursor to beginning of Exp
+          resetCursorToExpression();
           break;
         }
         case 'D':{
           //Delete at cursor in expression
-          expression.remove(expLength-iterator, 1);
+          expression.remove(curX, 1);
           expLength = expression.length();
           clear();
           printLineOne(expression);
@@ -669,12 +670,41 @@ class LcdController
           break;
         }
         default:{
-          expression += input;
+          String a = expression.substring(0,curX);
+          String b = expression.substring(curX);
+          String c = String(a + input);
+          expression = String(c + b);
       	  expLength = expression.length();
+          Serial.print("pa:");
+          Serial.print(a);
+          Serial.print("pi:");
+          Serial.print(input);
+          Serial.print("pb:");
+          Serial.print(b);
+          Serial.print("E:");
+          Serial.print(expression);
           // If Expression is less that 13, Tack on our input
           if(expLength <= 13){
-            setCursor(expLength-1,0);
-            printChar(input);
+            if (curX != expLength-1)
+            {
+              printLineOne(expression);
+              Serial.print("EXPLEN:");
+              Serial.print(expLength);
+              Serial.print("CurX:");
+              Serial.print(curX);              
+            }
+            else
+            {
+              Serial.print("Printing Single Char");
+              Serial.print("EXPLEN:");
+              Serial.print(expLength);
+              Serial.print("CurX:");
+              Serial.print(curX);
+              setCursor(curX,0);
+              printChar(input);
+            }
+            
+
           // If Expression is more than 13, Slide over the digits
           } else {
             printLineOne(expression);
@@ -695,9 +725,11 @@ class LcdController
     {
       expression = "";
       expLength = 0;
+      setCursor(0,0)
     }
     void printLineOne(String s)// Prints String on First Row of LCD (Left Respecting), Slides extra digits
     {
+      clear();
       int s_length = s.length();
       lcd->setCursor(0,0);
       if(s_length < 13)
@@ -738,7 +770,7 @@ class LcdController
       lcd->clear();
       printKeys(last_known_mode);
       if(expLength == 0) setCursor(0,0);
-      else setCursor((expLength-1) % 13,0);
+      //else setCursor(min(expLength,13),0);
     }
   	void setCursor(int x, int y)// Sets cursor to x, y, Records to CurX CurY
     {
@@ -749,8 +781,8 @@ class LcdController
   
     void moveCurUp(){setCursor(curX,curY-1);}
   	void moveCurDown(){setCursor(curX,curY+1);}
-  	void moveCurLeft(){setCursor(curX-1,curY);}
-  	void moveCurRight(){setCursor(curX+1,curY);}
+  	void moveCurLeft(){if(curX != 0)setCursor(curX-1,curY);}
+  	void moveCurRight(){if(curX < expLength)setCursor(curX+1,curY);}
   	
   private:
   	byte curX; // Cursor Cords
