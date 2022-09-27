@@ -670,23 +670,25 @@ class LcdController
           break;
         }
         default:{
-          String a = expression.substring(0,curX);
-          String b = expression.substring(curX);
-          String c = String(a + input);
-          expression = String(c + b);
-      	  expLength = expression.length();
-          Serial.print("pa:");
-          Serial.print(a);
-          Serial.print("pi:");
-          Serial.print(input);
-          Serial.print("pb:");
-          Serial.print(b);
-          Serial.print("E:");
-          Serial.print(expression);
+          expLength = expression.length()  + 1;
           // If Expression is less that 13, Tack on our input
           if(expLength <= 13){
+            String a = expression.substring(0,curX);
+            String b = expression.substring(curX);
+            String c = String(a + input);
+            expression = String(c + b);
+            //expLength = expression.length();
+            Serial.print("pa:");
+            Serial.print(a);
+            Serial.print("pi:");
+            Serial.print(input);
+            Serial.print("pb:");
+            Serial.print(b);
+            Serial.print("E:");
+            Serial.print(expression);
             if (curX != expLength-1)
             {
+              
               printLineOne(expression);
               Serial.print("EXPLEN:");
               Serial.print(expLength);
@@ -707,6 +709,18 @@ class LcdController
 
           // If Expression is more than 13, Slide over the digits
           } else {
+            String a = expression.substring(0,curX + expLength - 13);
+            String b = expression.substring(curX + expLength - 13);
+            String c = String(a + input);
+            expression = String(c + b);
+            Serial.print("pa:");
+            Serial.print(a);
+            Serial.print("pi:");
+            Serial.print(input);
+            Serial.print("pb:");
+            Serial.print(b);
+            Serial.print("E:");
+            Serial.print(expression);
             printLineOne(expression);
           }
         }
@@ -725,7 +739,7 @@ class LcdController
     {
       expression = "";
       expLength = 0;
-      setCursor(0,0)
+      setCursor(0,0);
     }
     void printLineOne(String s)// Prints String on First Row of LCD (Left Respecting), Slides extra digits
     {
